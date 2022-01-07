@@ -1,6 +1,7 @@
 ﻿using iot_parking.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Mqtt.Client.AspNetCore.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,10 +13,12 @@ namespace iot_parking.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IMqttClientService _mqtt;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, ExtarnalService extarnalService)
         {
             _logger = logger;
+            _mqtt = extarnalService.GetService();
         }
 
         public IActionResult Index()
@@ -32,6 +35,12 @@ namespace iot_parking.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public IActionResult SendMessage()
+        {
+            _mqtt.SendMessage("clicked");
+            return RedirectToAction(nameof(Index));
         }
     }
 }
