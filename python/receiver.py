@@ -9,7 +9,7 @@ import time
 # broker = "localhost"
 broker = 'localhost'
 port = 1883
-topic = "/mqtt/+"
+topic = "mqtt/+"
 # broker = "127.0.0.1"
 # broker = "10.0.0.1"
 
