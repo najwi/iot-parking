@@ -22,7 +22,8 @@ namespace iot_parking.Controllers
         // GET: RFIDCards
         public async Task<IActionResult> Index()
         {
-            return View(await _context.RFIDCards.ToListAsync());
+            var databaseContext = _context.RFIDCards.Include(c => c.CardOwner);
+            return View(await databaseContext.ToListAsync());
         }
 
         // GET: RFIDCards/Details/5
@@ -34,6 +35,7 @@ namespace iot_parking.Controllers
             }
 
             var rFIDCard = await _context.RFIDCards
+                .Include(c => c.CardOwner)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (rFIDCard == null)
             {
@@ -44,9 +46,27 @@ namespace iot_parking.Controllers
         }
 
         // GET: RFIDCards/Create
-        public IActionResult Create()
+        [Route("RFIDCards/CreateAsync/{cardId?}")]
+        public async Task<IActionResult> CreateAsync(int? cardId)
         {
+            if(cardId != null)
+            {
+                var scannedCard = await _context.ScannedCards.FirstOrDefaultAsync(c => c.Id == cardId);
+
+                if(scannedCard != null)
+                {
+                    ViewBag.cardNr = scannedCard.CardNumber;
+                }
+
+            }
             return View();
+        }
+
+        public async Task<IActionResult> PickCard()
+        {
+            var cards = await _context.ScannedCards.ToListAsync();
+
+            return View(cards);
         }
 
         // POST: RFIDCards/Create
@@ -73,11 +93,14 @@ namespace iot_parking.Controllers
                 return NotFound();
             }
 
-            var rFIDCard = await _context.RFIDCards.FindAsync(id);
+            var rFIDCard = await _context.RFIDCards
+                .Include(c => c.CardOwner)
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (rFIDCard == null)
             {
                 return NotFound();
             }
+
             return View(rFIDCard);
         }
 
@@ -125,6 +148,7 @@ namespace iot_parking.Controllers
             }
 
             var rFIDCard = await _context.RFIDCards
+                .Include(c => c.CardOwner)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (rFIDCard == null)
             {

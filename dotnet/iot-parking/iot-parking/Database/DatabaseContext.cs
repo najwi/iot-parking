@@ -28,5 +28,7 @@ namespace iot_parking.Database
 
         public DbSet<Parking> Parkings { get; set; }
 
+        public DbSet<ScannedCard> ScannedCards { get; set; }
+
     }
 }

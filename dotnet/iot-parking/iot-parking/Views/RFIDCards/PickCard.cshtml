@@ -1,0 +1,37 @@
+﻿@model IEnumerable<iot_parking.Models.ScannedCard>
+
+@{
+    ViewData["Title"] = "Wybór karty";
+}
+
+<h1 class="h1">Wybierz kartę</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayName("Nr karty")
+            </th>
+            <th>
+                @Html.DisplayName("Data dodania")
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (ScannedCard item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CardNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ScanDate)
+                </td>
+                <td>
+                    <input type="button" class="btn btn-outline-primary" value="Wybierz" onclick="location.href='@Url.Action("CreateAsync", "RFIDCards", new { cardId = item.Id })'" />
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
