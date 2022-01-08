@@ -56,7 +56,7 @@ namespace iot_parking.Database
         {
             var terminal = Terminals.FirstOrDefault(t => t.TerminalNumber == terminalNumber);
 
-            if (terminal != null & terminal.Type == TerminalTypes.EntryGate)
+            if (terminal != null && terminal.Type == TerminalTypes.EntryGate)
                 return await SaveEntry(cardNumber);
             else
                 return false;
@@ -65,9 +65,9 @@ namespace iot_parking.Database
 
         public async Task<bool> SaveEntry(string cardNumber)
         {
-            var card = RFIDCards.Include(c => c.CardOwner).FirstOrDefault(c => c.CardNumber == cardNumber);
+            var card = RFIDCards.Include(c => c.Parkings).FirstOrDefault(c => c.CardNumber == cardNumber);
 
-            if (CheckCard(card))
+            if (card != null && CheckCard(card))
             {
                 Parking parking = new Parking()
                 {
@@ -88,7 +88,7 @@ namespace iot_parking.Database
         {
             var terminal = Terminals.FirstOrDefault(t => t.TerminalNumber == terminalNumber);
 
-            if (terminal != null & terminal.Type == TerminalTypes.ExitGate)
+            if (terminal != null && terminal.Type == TerminalTypes.ExitGate)
                 return await SaveLeave(cardNumber);
             else
                 return false;
@@ -96,11 +96,11 @@ namespace iot_parking.Database
 
         public async Task<bool> SaveLeave(string cardNumber)
         {
-            var card = RFIDCards.Include(c => c.CardOwner).FirstOrDefault(c => c.CardNumber == cardNumber);
-            var parking = card.Parkings.FirstOrDefault(p => p.ExitDate == null);
+            var card = RFIDCards.Include(c => c.Parkings).FirstOrDefault(c => c.CardNumber == cardNumber);
 
-            if (CheckParking(card))
+            if (card != null && CheckParking(card))
             {
+                var parking = card.Parkings.FirstOrDefault(p => p.ExitDate == null);
                 parking.ExitDate = DateTime.Now;
                 Update(parking);
                 await SaveChangesAsync();

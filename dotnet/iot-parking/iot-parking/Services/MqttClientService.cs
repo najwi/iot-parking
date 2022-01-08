@@ -71,10 +71,12 @@ namespace iot_parking.Services
         {
             string clientId = messageTopic.Substring(messageTopic.LastIndexOf('/'));
             string cardNumber = GetCardId(messagePayload);
+            Console.WriteLine($"Received card RFID: {cardNumber}");
             using (var scope = _scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
                 bool openGate = await db.CheckEntry(clientId, cardNumber);
+                Console.WriteLine($"Open gate: {openGate}");
                 await SendGateResponse(messageTopic, openGate);
             }
         }
@@ -87,7 +89,10 @@ namespace iot_parking.Services
             using (var scope = _scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-                bool openGate = await db.CheckLeave(clientId, cardNumber);
+                // bool openGate = await db.CheckLeave(clientId, cardNumber);
+                bool openGate = true;
+                openGate = await db.SaveLeave(cardNumber);
+                Console.WriteLine($"Open gate: {openGate}");
                 await SendGateResponse(messageTopic, openGate);
             }
         }
