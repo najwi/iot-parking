@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
+using MQTTnet.Client.Options;
+
+using iot_parking.Services;
+using iot_parking.Settings;
 
 namespace iot_parking
 {
@@ -18,19 +18,57 @@ namespace iot_parking
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            MapConfiguration();
         }
 
-        public IConfiguration Configuration { get; }
+        public IConfiguration Configuration;
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        private void MapConfiguration()
+        {
+            MapBrokerHostSettings();
+            MapClientSettings();
+        }
+
+        private void MapBrokerHostSettings()
+        {
+            BrokerHostSettings brokerHostSettings = new BrokerHostSettings();
+            Configuration.GetSection(nameof(BrokerHostSettings)).Bind(brokerHostSettings);
+            AppSettingsProvider.BrokerHostSettings = brokerHostSettings;
+        }
+
+        private void MapClientSettings()
+        {
+            ClientSettings clientSettings = new ClientSettings();
+            Configuration.GetSection(nameof(ClientSettings)).Bind(clientSettings);
+            AppSettingsProvider.ClientSettings = clientSettings;
+        }
+
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<IMqttClientOptions>(serviceProvider =>
+            {
+                var clientSettings = AppSettingsProvider.ClientSettings;
+                var brokerHostSettings = AppSettingsProvider.BrokerHostSettings;
+
+                var optionBuilder = new MqttClientOptionsBuilder();
+                optionBuilder
+                    .WithCredentials(clientSettings.UserName, clientSettings.Password)
+                    .WithClientId(clientSettings.Id)
+                    .WithTcpServer(brokerHostSettings.Host, brokerHostSettings.Port);
+                return optionBuilder.Build();
+            });
+
+            services.AddSingleton<IMqttClientService, MqttClientService>();
+            services.AddSingleton<IHostedService>(serviceProvider =>
+            {
+                return serviceProvider.GetService<IMqttClientService>();
+            });
+
             services.AddControllersWithViews();
             services.AddDbContextPool<DatabaseContext>(options => 
                 options.UseMySql(Configuration.GetConnectionString("DatabaseContext"), ServerVersion.AutoDetect(Configuration.GetConnectionString("DatabaseContext"))));
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -40,7 +78,6 @@ namespace iot_parking
             else
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
             app.UseHttpsRedirection();
