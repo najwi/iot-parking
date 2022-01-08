@@ -6,11 +6,11 @@ import time
 from paho.mqtt import client as mqtt_client
 from paho.mqtt.client import MQTTv311
 
-broker = 'localhost'
-port = 1883
-topic = "mqtt/a"
 # generate client ID with pub prefix randomly
 client_id = f'python-mqtt-{random.randint(0, 1000)}'
+broker = 'localhost'
+port = 1883
+topic = "gate/e/" + client_id
 username = 'abc'
 password = 'public'
 

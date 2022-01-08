@@ -45,13 +45,13 @@ namespace iot_parking
         {
             services.AddSingleton<IMqttClientOptions>(serviceProvider =>
             {
-                var clientSettinigs = AppSettingsProvider.ClientSettings;
+                var clientSettings = AppSettingsProvider.ClientSettings;
                 var brokerHostSettings = AppSettingsProvider.BrokerHostSettings;
 
                 var optionBuilder = new MqttClientOptionsBuilder();
                 optionBuilder
-                    .WithCredentials(clientSettinigs.UserName, clientSettinigs.Password)
-                    .WithClientId(clientSettinigs.Id)
+                    .WithCredentials(clientSettings.UserName, clientSettings.Password)
+                    .WithClientId(clientSettings.Id)
                     .WithTcpServer(brokerHostSettings.Host, brokerHostSettings.Port);
                 return optionBuilder.Build();
             });

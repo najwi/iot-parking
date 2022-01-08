@@ -14,55 +14,56 @@ namespace iot_parking.Services
 {
     public class MqttClientService : IMqttClientService
     {
-        private IMqttClient mqttClient;
-        private IMqttClientOptions options;
+        private IMqttClient _mqttClient;
+        private IMqttClientOptions _options;
+
+        private const string EntryGatesTopic = "gate/e/";
+        private const string LeaveGatesTopic = "gate/l/";
+        private const string CardReaderTopic = "reader/";
 
         public MqttClientService(IMqttClientOptions options)
         {
-            this.options = options;
-            mqttClient = new MqttFactory().CreateMqttClient();
+            this._options = options;
+            _mqttClient = new MqttFactory().CreateMqttClient();
             ConfigureMqttClient();
         }
 
         private void ConfigureMqttClient()
         {
-            mqttClient.ConnectedHandler = this;
-            mqttClient.DisconnectedHandler = this;
-            mqttClient.ApplicationMessageReceivedHandler = this;
-            mqttClient.UseConnectedHandler(async e =>
-            {
-                Console.WriteLine("### CONNECTED WITH SERVER ###");
+            _mqttClient.ConnectedHandler = this;
+            _mqttClient.DisconnectedHandler = this;
+            _mqttClient.ApplicationMessageReceivedHandler = this;
 
-                // Subscribe to a topic
-                await mqttClient.SubscribeAsync(new MqttClientSubscribeOptionsBuilder().WithTopicFilter("mqtt/+").Build());
+            //mqttClient.UseApplicationMessageReceivedHandler(async e =>
+            //{
+            //    Console.WriteLine("### RECEIVED APPLICATION MESSAGE ###");
+            //    Console.WriteLine($"+ ClientId = {e.ClientId}");
+            //    Console.WriteLine($"+ Topic = {e.ApplicationMessage.Topic}");
+            //    Console.WriteLine($"+ Payload = {Encoding.UTF8.GetString(e.ApplicationMessage.Payload)}");
+            //    Console.WriteLine($"+ QoS = {e.ApplicationMessage.QualityOfServiceLevel}");
+            //    Console.WriteLine($"+ Retain = {e.ApplicationMessage.Retain}");
+            //    Console.WriteLine($"+ SubscriptionIdentifiers = {e.ApplicationMessage.SubscriptionIdentifiers}");
+            //    Console.WriteLine($"+ MessageExpiryInterval = {e.ApplicationMessage.MessageExpiryInterval}");
+            //    Console.WriteLine($"+ ContentType = {e.ApplicationMessage.ContentType}");
+            //    Console.WriteLine($"+ AutoAcknowledge = {e.AutoAcknowledge}");
+            //    Console.WriteLine($"+ IsHandled = {e.IsHandled}");
+            //    Console.WriteLine($"+ ReasonCode = {e.ReasonCode}");
+            //    Console.WriteLine();
 
-                Console.WriteLine("### SUBSCRIBED ###");
-            });
-            mqttClient.UseApplicationMessageReceivedHandler(async e =>
-            {
-                Console.WriteLine("### RECEIVED APPLICATION MESSAGE ###");
-                Console.WriteLine($"+ Topic = {e.ApplicationMessage.Topic}");
-                Console.WriteLine($"+ Payload = {Encoding.UTF8.GetString(e.ApplicationMessage.Payload)}");
-                Console.WriteLine($"+ QoS = {e.ApplicationMessage.QualityOfServiceLevel}");
-                Console.WriteLine($"+ Retain = {e.ApplicationMessage.Retain}");
-                Console.WriteLine();
-
-                await Task.Run(() => mqttClient.PublishAsync("hello/world"));
-            });
-        }
-
-        public Task HandleApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs eventArgs)
-        {
-            Console.WriteLine($"Received message from: {eventArgs.ClientId}");
-            Console.WriteLine(eventArgs.ApplicationMessage.ContentType);
-            Console.WriteLine(eventArgs.ApplicationMessage.Payload);
-            return Task.Delay(1);
+            //    await Task.Run(() => mqttClient.PublishAsync("hello/world"));
+            //});
+            //mqttClient.UseApplicationMessageReceivedHandler(HandleApplicationMessageReceivedAsync);
         }
 
         public async Task HandleConnectedAsync(MqttClientConnectedEventArgs eventArgs)
         {
-            System.Console.WriteLine("connected");
-            await mqttClient.SubscribeAsync("hello/world");
+            Console.WriteLine("### CONNECTED WITH SERVER ###");
+            await _mqttClient.SubscribeAsync(new MqttClientSubscribeOptionsBuilder().WithTopicFilter(EntryGatesTopic + '+').Build());
+            Console.WriteLine($"### SUBSCRIBED TO {EntryGatesTopic}+ ###");
+            await _mqttClient.SubscribeAsync(new MqttClientSubscribeOptionsBuilder().WithTopicFilter(LeaveGatesTopic + '+').Build());
+            Console.WriteLine($"### SUBSCRIBED TO {LeaveGatesTopic}+ ###");
+            await _mqttClient.SubscribeAsync(new MqttClientSubscribeOptionsBuilder().WithTopicFilter(CardReaderTopic + '+').Build());
+            Console.WriteLine($"### SUBSCRIBED TO {CardReaderTopic}+ ###");
         }
 
         public Task HandleDisconnectedAsync(MqttClientDisconnectedEventArgs eventArgs)
@@ -72,17 +73,43 @@ namespace iot_parking.Services
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            await mqttClient.ConnectAsync(options);
-            if (!mqttClient.IsConnected)
+            Console.WriteLine("### CONNECTING TO SERVER ###");
+            await _mqttClient.ConnectAsync(_options);
+            if (!_mqttClient.IsConnected)
             {
-                await mqttClient.ReconnectAsync();
+                await _mqttClient.ReconnectAsync();
             }
+        }
 
+        private Task HandleEntryGateMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs e)
+        {
+
+        }
+
+        public Task HandleApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs eventArgs)
+        {
+            string messageTopic = eventArgs.ApplicationMessage.Topic;
+            Console.WriteLine($"Received message topic: {messageTopic}");
+            string messageType = messageTopic.Substring(0, messageTopic.LastIndexOf('/') + 1);
+            Console.WriteLine(messageType);
+            switch (messageType)
+            {
+                case EntryGatesTopic:
+                    break;
+                case LeaveGatesTopic:
+                    break;
+                case CardReaderTopic:
+                    break;
+                default:
+                    Console.WriteLine("Unhandled message topic");
+                    break;
+            }
+            return Task.Delay(1);
         }
 
         public async Task SendMessage(string message) 
         {
-            await mqttClient.PublishAsync(message);
+            await _mqttClient.PublishAsync(message);
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
@@ -94,9 +121,9 @@ namespace iot_parking.Services
                     ReasonCode = MqttClientDisconnectReason.NormalDisconnection,
                     ReasonString = "NormalDiconnection"
                 };
-                await mqttClient.DisconnectAsync(disconnectOption, cancellationToken);
+                await _mqttClient.DisconnectAsync(disconnectOption, cancellationToken);
             }
-            await mqttClient.DisconnectAsync();
+            await _mqttClient.DisconnectAsync();
         }
     }
 }
