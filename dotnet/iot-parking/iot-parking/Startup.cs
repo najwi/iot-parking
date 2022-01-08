@@ -1,8 +1,10 @@
+using iot_parking.Database;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 using MQTTnet.Client.Options;
 
@@ -63,6 +65,8 @@ namespace iot_parking
             });
 
             services.AddControllersWithViews();
+            services.AddDbContextPool<DatabaseContext>(options => 
+                options.UseMySql(Configuration.GetConnectionString("DatabaseContext"), ServerVersion.AutoDetect(Configuration.GetConnectionString("DatabaseContext"))));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
