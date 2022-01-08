@@ -1,0 +1,8 @@
+pattern readwrite gate/e/%c
+pattern readwrite gate/l/%c
+pattern readwrite reader/%c
+
+user server5434783
+topic readwrite gate/e/+
+topic readwrite gate/l/+
+topic readwrite reader/+
