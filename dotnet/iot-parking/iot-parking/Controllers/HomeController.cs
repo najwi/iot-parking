@@ -1,12 +1,9 @@
-﻿using iot_parking.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Mqtt.Client.AspNetCore.Services;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+
+using iot_parking.Models;
+using iot_parking.Services;
 
 namespace iot_parking.Controllers
 {
@@ -15,10 +12,10 @@ namespace iot_parking.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IMqttClientService _mqtt;
 
-        public HomeController(ILogger<HomeController> logger, ExtarnalService extarnalService)
+        public HomeController(ILogger<HomeController> logger, IMqttClientService mqttClientService)
         {
             _logger = logger;
-            _mqtt = extarnalService.GetService();
+            _mqtt = mqttClientService;
         }
 
         public IActionResult Index()

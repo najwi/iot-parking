@@ -1,15 +1,16 @@
-﻿using MQTTnet;
+﻿using System;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
+using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Client.Connecting;
 using MQTTnet.Client.Disconnecting;
 using MQTTnet.Client.Options;
 using MQTTnet.Client.Subscribing;
-using System;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Mqtt.Client.AspNetCore.Services
+namespace iot_parking.Services
 {
     public class MqttClientService : IMqttClientService
     {
@@ -33,7 +34,7 @@ namespace Mqtt.Client.AspNetCore.Services
                 Console.WriteLine("### CONNECTED WITH SERVER ###");
 
                 // Subscribe to a topic
-                await mqttClient.SubscribeAsync(new MqttClientSubscribeOptionsBuilder().WithTopicFilter("/mqtt/+").Build());
+                await mqttClient.SubscribeAsync(new MqttClientSubscribeOptionsBuilder().WithTopicFilter("mqtt/+").Build());
 
                 Console.WriteLine("### SUBSCRIBED ###");
             });

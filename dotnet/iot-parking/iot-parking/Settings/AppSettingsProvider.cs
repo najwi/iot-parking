@@ -1,4 +1,4 @@
-﻿namespace Mqtt.Client.AspNetCore.Settings
+﻿namespace iot_parking.Settings
 {
     public class AppSettingsProvider
     {
