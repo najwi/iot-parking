@@ -2,15 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace iot_parking.Models
 {
-
-    [Index(nameof(RFIDCard.CardNumber), IsUnique = true)]
-    public class RFIDCard
+    [Index(nameof(ScannedCard.CardNumber), IsUnique = true)]
+    public class ScannedCard
     {
         [Key]
         public int Id { get; set; }
@@ -20,10 +18,6 @@ namespace iot_parking.Models
         public string CardNumber { get; set; }
 
         [Required]
-        public bool IsActive { get; set; }
-
-        public CardOwner CardOwner { get; set; }
-
-        public ICollection<Parking> Parkings { get; set; }
+        public DateTime ScanDate { get; set; }
     }
 }

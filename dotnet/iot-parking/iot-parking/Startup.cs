@@ -10,6 +10,7 @@ using MQTTnet.Client.Options;
 
 using iot_parking.Services;
 using iot_parking.Settings;
+using Microsoft.Extensions.Hosting;
 
 namespace iot_parking
 {

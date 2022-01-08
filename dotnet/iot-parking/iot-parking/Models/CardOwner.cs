@@ -27,7 +27,7 @@ namespace iot_parking.Models
         [Required]
         public DateTime IssueDate { get; set; }
 
-        public DateTime ValidDate { get; set; }
+        public DateTime? ValidDate { get; set; }
 
         [Required]
         public int CardId { get; set; }

@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
+using iot_parking.Database;
+using iot_parking.Models;
+using Microsoft.EntityFrameworkCore;
 using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Client.Connecting;
@@ -81,9 +84,20 @@ namespace iot_parking.Services
             }
         }
 
-        private Task HandleEntryGateMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs e)
+        private string GetPayloadValue(string payload, string parameter = "card")
         {
+            string[] splitedPayload = payload.Split(':', ';');
 
+            return splitedPayload[Array.IndexOf(splitedPayload, parameter) + 1];
+        }
+        
+        private Task HandleEntryGateMessageReceivedAsync(string clientId, string messagePayload)
+        {
+            string cardNumber = GetPayloadValue(messagePayload);
+
+            //_context.SaveEntry(clientId, cardNumber);
+
+            throw new NotImplementedException();
         }
 
         public Task HandleApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs eventArgs)
@@ -92,9 +106,16 @@ namespace iot_parking.Services
             Console.WriteLine($"Received message topic: {messageTopic}");
             string messageType = messageTopic.Substring(0, messageTopic.LastIndexOf('/') + 1);
             Console.WriteLine(messageType);
+            string clientId = messageTopic.Substring(messageTopic.LastIndexOf('/'));
+            Console.WriteLine(clientId);
+
+            string messagePayload = Encoding.UTF8.GetString(eventArgs.ApplicationMessage.Payload);
+            Console.WriteLine(messagePayload);
+
             switch (messageType)
             {
                 case EntryGatesTopic:
+                    HandleEntryGateMessageReceivedAsync(clientId, messagePayload);
                     break;
                 case LeaveGatesTopic:
                     break;
