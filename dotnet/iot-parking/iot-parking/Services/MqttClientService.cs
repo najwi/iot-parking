@@ -83,7 +83,7 @@ namespace iot_parking.Services
 
         private Task HandleEntryGateMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs e)
         {
-
+            throw new NotImplementedException();
         }
 
         public Task HandleApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs eventArgs)
