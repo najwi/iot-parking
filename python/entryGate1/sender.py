@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 import paho.mqtt.client as mqtt
-import tkinter 
+from paho.mqtt.client import MQTTv311
+import tkinter
 import random
-import config
+import gateClientConfig as config
 ### RaspberryPi version: ###
 
 #import time
@@ -30,14 +31,14 @@ import config
 
 ### END - RaspberryPi version ###
 
-client_id = f'python-mqtt-{random.randint(0, 1000)}'
-terminal_id = "Gate1"
-topic =  config.topic
-# The broker name or IP address.
-broker = "localhost" #"192.168.1.12" #"127.0.0.1"
+broker = config.broker
+port = config.port
+client_id = config.client_id
+username = config.username
+password = config.password
+topic = f"{config.topic}/{client_id}"
 
-# The MQTT client.
-client = mqtt.Client(client_id)
+client = None
 window = tkinter.Tk()
 
 
@@ -73,11 +74,10 @@ def create_main_window():
 
 
 def connect_to_broker():
-    # Connect to the broker.
-    client.connect(broker)
-    # Send message about conenction.
-    # call_worker("Client connected")
-    #for response processing:
+    global client
+    client = mqtt.Client(client_id, clean_session=False, protocol=MQTTv311)
+    client.username_pw_set(username, password)
+    client.connect(broker, port)
     client.on_message = process_message
     client.loop_start()
     channel_ret = topic + "/r"
