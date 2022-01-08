@@ -30,6 +30,8 @@ namespace iot_parking.Database
 
         public DbSet<ScannedCard> ScannedCards { get; set; }
 
+        public DbSet<Terminal> Terminals { get; set; }
+
         private bool CheckCard(RFIDCard? card)
         {
             var parking = card.Parkings.FirstOrDefault(p => p.ExitDate == null);
@@ -50,9 +52,20 @@ namespace iot_parking.Database
                 return true;
         }
 
-        public async Task<bool> SaveEntry(string clientId, string cardNumber)
-        {            
-            var card = RFIDCards.Include(c => c.CardOwner).FirstOrDefault(c => c.CardNumber == cardNumber);         
+        public async Task<bool> CheckEntry(string terminalNumber, string cardNumber)
+        {
+            var terminal = Terminals.FirstOrDefault(t => t.TerminalNumber == terminalNumber);
+
+            if (terminal != null & terminal.Type == TerminalTypes.EntryGate)
+                return await SaveEntry(cardNumber);
+            else
+                return false;
+            
+        }
+
+        public async Task<bool> SaveEntry(string cardNumber)
+        {
+            var card = RFIDCards.Include(c => c.CardOwner).FirstOrDefault(c => c.CardNumber == cardNumber);
 
             if (CheckCard(card))
             {
@@ -71,7 +84,17 @@ namespace iot_parking.Database
                 return false;
         }
 
-        public async Task<bool> SaveLeave(string clientId, string cardNumber)
+        public async Task<bool> CheckLeave(string terminalNumber, string cardNumber)
+        {
+            var terminal = Terminals.FirstOrDefault(t => t.TerminalNumber == terminalNumber);
+
+            if (terminal != null & terminal.Type == TerminalTypes.ExitGate)
+                return await SaveLeave(cardNumber);
+            else
+                return false;
+        }
+
+        public async Task<bool> SaveLeave(string cardNumber)
         {
             var card = RFIDCards.Include(c => c.CardOwner).FirstOrDefault(c => c.CardNumber == cardNumber);
             var parking = card.Parkings.FirstOrDefault(p => p.ExitDate == null);

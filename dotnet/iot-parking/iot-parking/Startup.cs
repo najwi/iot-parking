@@ -46,6 +46,11 @@ namespace iot_parking
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<DatabaseContext>(options =>
+                options.UseMySql(
+                    Configuration.GetConnectionString("DatabaseContext"), 
+                    ServerVersion.AutoDetect(Configuration.GetConnectionString("DatabaseContext"))));
+
             services.AddSingleton<IMqttClientOptions>(serviceProvider =>
             {
                 var clientSettings = AppSettingsProvider.ClientSettings;
@@ -66,8 +71,6 @@ namespace iot_parking
             });
 
             services.AddControllersWithViews();
-            services.AddDbContextPool<DatabaseContext>(options => 
-                options.UseMySql(Configuration.GetConnectionString("DatabaseContext"), ServerVersion.AutoDetect(Configuration.GetConnectionString("DatabaseContext"))));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
