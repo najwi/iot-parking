@@ -46,8 +46,8 @@ namespace iot_parking.Controllers
         }
 
         // GET: RFIDCards/Create
-        [Route("RFIDCards/CreateAsync/{cardId?}")]
-        public async Task<IActionResult> CreateAsync(int? cardId)
+        //[Route("RFIDCards/Create/{cardId?}")]
+        public async Task<IActionResult> Create(int? cardId)
         {
             if(cardId != null)
             {
@@ -74,15 +74,34 @@ namespace iot_parking.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,CardNumber,IsActive")] RFIDCard rFIDCard)
+        public IActionResult Create([Bind("CardNumber,IsActive,HasOwner,Firstname,Lastname,Email,IssueDate,ValidDate")] CardOwnerRFIDCard card)
         {
             if (ModelState.IsValid)
             {
+                RFIDCard rFIDCard = new();
+                rFIDCard.CardNumber = card.CardNumber;
+                rFIDCard.IsActive = card.IsActive;
+
                 _context.Add(rFIDCard);
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
+
+                if (card.HasOwner) {
+                    var newCard = _context.RFIDCards.FirstOrDefault(c => c.CardNumber == card.CardNumber);
+                    CardOwner cardOwner = new();
+                    cardOwner.Firstname = card.Firstname;
+                    cardOwner.Lastname = card.Lastname;
+                    cardOwner.Email = card.Email;
+                    cardOwner.IssueDate = card.IssueDate;
+                    cardOwner.ValidDate = card.ValidDate;
+                    cardOwner.CardId = newCard.Id;
+
+                    _context.Add(cardOwner);
+                    _context.SaveChanges();
+                }
+
                 return RedirectToAction(nameof(Index));
             }
-            return View(rFIDCard);
+            return View(card);
         }
 
         // GET: RFIDCards/Edit/5
