@@ -1,0 +1,12 @@
+To generate id use version 1 uuid https://www.uuidgenerator.net/
+Username set accordingly 
+To generate passwords use: https://passwordsgenerator.net/plus/
+
+In order to add new device you have to:
+1. Change it's config file and set username, password and unique client id (and topic)
+2. Add this user on broker to allow connection 
+	.\mosquitto_passwd.exe -b password.pwd username password
+	Both username and password must match these on device config
+3. Restart broker .\mosquitto.exe -v -c .\mosquitto.conf
+
+Remember to update docs https://docs.google.com/document/d/1-3fujXPgNZZmMYkHtlNYol1wUyrjJolbkJMnxeRBjm8/edit

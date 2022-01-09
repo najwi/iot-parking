@@ -1,0 +1,10 @@
+broker = "localhost"
+port = 8883
+topic = "reader"
+client_id = "2866709a-70da-11ec-90d6-0242ac120003"
+username = "reader1"
+password = "VF6v=)N[X8%_)BZ>R&FLR[;j&j8)s*"
+caCrt = "mqtt_ca.crt"
+clientCrt = "mqtt_reader.crt"
+clientKey = "mqtt_reader.key"
+keyPassword = "1234"
