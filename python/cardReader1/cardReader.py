@@ -75,9 +75,9 @@ def create_main_window():
 
 def connect_to_broker():
     global client
-    client = mqtt.Client(client_id, clean_session=False, protocol=MQTTv311)
+    client = mqtt.Client(client_id, clean_session=True, protocol=MQTTv311)
     client.username_pw_set(username, password)
-    client.tls_set(ca_certs=caCrt, certfile=clientCrt, keyfile=clientKey, tls_version=ssl.PROTOCOL_TLSv1_2,
+    client.tls_set(ca_certs=caCrt, certfile=clientCrt, keyfile=clientKey, tls_version=ssl.PROTOCOL_SSLv23,
                    ciphers=None, keyfile_password=keyPassword, cert_reqs=ssl.CERT_NONE)
     client.connect(broker, port)
     client.loop_start()
