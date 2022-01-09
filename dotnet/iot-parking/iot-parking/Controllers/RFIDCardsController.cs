@@ -91,8 +91,8 @@ namespace iot_parking.Controllers
                     cardOwner.Firstname = card.Firstname;
                     cardOwner.Lastname = card.Lastname;
                     cardOwner.Email = card.Email;
-                    cardOwner.IssueDate = card.IssueDate;
-                    cardOwner.ValidDate = card.ValidDate;
+                    cardOwner.IssueDate = card.IssueDate.Value;
+                    cardOwner.ValidDate = card.ValidDate.Value;
                     cardOwner.CardId = newCard.Id;
 
                     _context.Add(cardOwner);
