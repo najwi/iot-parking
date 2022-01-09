@@ -54,7 +54,7 @@ namespace iot_parking.Database
 
         public async Task<bool> CheckEntry(string terminalNumber, string cardNumber)
         {
-            var terminal = Terminals.FirstOrDefault(t => t.TerminalNumber == terminalNumber);
+            var terminal = Terminals.FirstOrDefault(t => t.TerminalNumber.Equals(terminalNumber));
 
             if (terminal != null && terminal.Type == TerminalTypes.EntryGate)
                 return await SaveEntry(cardNumber);
@@ -65,7 +65,7 @@ namespace iot_parking.Database
 
         public async Task<bool> SaveEntry(string cardNumber)
         {
-            var card = RFIDCards.Include(c => c.Parkings).FirstOrDefault(c => c.CardNumber == cardNumber);
+            var card = RFIDCards.Include(c => c.Parkings).FirstOrDefault(c => c.CardNumber.Equals(cardNumber));
 
             if (card != null && CheckCard(card))
             {
@@ -86,7 +86,7 @@ namespace iot_parking.Database
 
         public async Task<bool> CheckLeave(string terminalNumber, string cardNumber)
         {
-            var terminal = Terminals.FirstOrDefault(t => t.TerminalNumber == terminalNumber);
+            var terminal = Terminals.FirstOrDefault(t => t.TerminalNumber.Equals(terminalNumber));
 
             if (terminal != null && terminal.Type == TerminalTypes.ExitGate)
                 return await SaveLeave(cardNumber);
@@ -96,7 +96,7 @@ namespace iot_parking.Database
 
         public async Task<bool> SaveLeave(string cardNumber)
         {
-            var card = RFIDCards.Include(c => c.Parkings).FirstOrDefault(c => c.CardNumber == cardNumber);
+            var card = RFIDCards.Include(c => c.Parkings).FirstOrDefault(c => c.CardNumber.Equals(cardNumber));
 
             if (card != null && CheckParking(card))
             {

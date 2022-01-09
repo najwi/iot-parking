@@ -69,7 +69,7 @@ namespace iot_parking.Services
 
         private async Task HandleEntryGateMessageReceivedAsync(string messageTopic, string messagePayload)
         {
-            string clientId = messageTopic.Substring(messageTopic.LastIndexOf('/'));
+            string clientId = messageTopic.Substring(messageTopic.LastIndexOf('/') + 1);
             string cardNumber = GetCardId(messagePayload);
             Console.WriteLine($"Received card RFID: {cardNumber}");
             using (var scope = _scopeFactory.CreateScope())
@@ -83,7 +83,7 @@ namespace iot_parking.Services
 
         private async Task HandleLeaveGateMessageReceivedAsync(string messageTopic, string messagePayload)
         {
-            string clientId = messageTopic.Substring(messageTopic.LastIndexOf('/'));
+            string clientId = messageTopic.Substring(messageTopic.LastIndexOf('/') + 1);
             string cardNumber = GetCardId(messagePayload);
             Console.WriteLine($"Received card RFID: {cardNumber}");
             using (var scope = _scopeFactory.CreateScope())
@@ -99,7 +99,7 @@ namespace iot_parking.Services
 
         private async Task HandleCardReaderMessageReceivedAsync(string messageTopic, string messagePayload)
         {
-            string clientId = messageTopic.Substring(messageTopic.LastIndexOf('/'));
+            string clientId = messageTopic.Substring(messageTopic.LastIndexOf('/') + 1);
             string cardNumber = GetCardId(messagePayload);
             Console.WriteLine($"Received card RFID: {cardNumber}");
             using (var scope = _scopeFactory.CreateScope())
