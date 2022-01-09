@@ -1,7 +1,6 @@
 ﻿using iot_parking.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -63,7 +62,7 @@ namespace iot_parking.Database
             
         }
 
-        public async Task<bool> SaveEntry(string cardNumber)
+        private async Task<bool> SaveEntry(string cardNumber)
         {
             var card = RFIDCards.Include(c => c.Parkings).FirstOrDefault(c => c.CardNumber == cardNumber);
 
@@ -94,7 +93,7 @@ namespace iot_parking.Database
                 return false;
         }
 
-        public async Task<bool> SaveLeave(string cardNumber)
+        private async Task<bool> SaveLeave(string cardNumber)
         {
             var card = RFIDCards.Include(c => c.Parkings).FirstOrDefault(c => c.CardNumber == cardNumber);
 

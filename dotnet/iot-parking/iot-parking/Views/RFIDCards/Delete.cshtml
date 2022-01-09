@@ -1,14 +1,13 @@
 ﻿@model iot_parking.Models.RFIDCard
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Usuwanie karty";
 }
 
 <h1>Usuwanie</h1>
 
-<h3>Jesteś pewny, że chcesz usunąć:</h3>
+<h3>Jesteś pewny, że chcesz usunąć kartę:</h3>
 <div>
-    <h4>Karta</h4>
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
@@ -64,7 +63,7 @@
     
     <form asp-action="Delete">
         <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <input type="submit" value="Usuń" class="btn btn-danger" /> |
         <a asp-action="Index">Powrót</a>
     </form>
 </div>
