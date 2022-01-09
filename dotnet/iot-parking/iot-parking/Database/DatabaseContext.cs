@@ -30,5 +30,85 @@ namespace iot_parking.Database
 
         public DbSet<ScannedCard> ScannedCards { get; set; }
 
+        public DbSet<Terminal> Terminals { get; set; }
+
+        private bool CheckCard(RFIDCard? card)
+        {
+            var parking = card.Parkings.FirstOrDefault(p => p.ExitDate == null);
+
+            if (card == null || parking != null)
+                return false;
+            else
+                return card.IsActive;
+        }
+
+        private bool CheckParking(RFIDCard? card)
+        {
+            var parkings = card.Parkings.Where(p => p.ExitDate == null).ToList();
+
+            if (card == null || parkings.Count != 1 )
+                return false;
+            else
+                return true;
+        }
+
+        public async Task<bool> CheckEntry(string terminalNumber, string cardNumber)
+        {
+            var terminal = Terminals.FirstOrDefault(t => t.TerminalNumber == terminalNumber);
+
+            if (terminal != null && terminal.Type == TerminalTypes.EntryGate)
+                return await SaveEntry(cardNumber);
+            else
+                return false;
+            
+        }
+
+        public async Task<bool> SaveEntry(string cardNumber)
+        {
+            var card = RFIDCards.Include(c => c.Parkings).FirstOrDefault(c => c.CardNumber == cardNumber);
+
+            if (card != null && CheckCard(card))
+            {
+                Parking parking = new Parking()
+                {
+                    EntryDate = DateTime.Now,
+                    CardId = card.Id
+                };
+
+                Add(parking);
+                await SaveChangesAsync();
+
+                return true;
+            }
+            else
+                return false;
+        }
+
+        public async Task<bool> CheckLeave(string terminalNumber, string cardNumber)
+        {
+            var terminal = Terminals.FirstOrDefault(t => t.TerminalNumber == terminalNumber);
+
+            if (terminal != null && terminal.Type == TerminalTypes.ExitGate)
+                return await SaveLeave(cardNumber);
+            else
+                return false;
+        }
+
+        public async Task<bool> SaveLeave(string cardNumber)
+        {
+            var card = RFIDCards.Include(c => c.Parkings).FirstOrDefault(c => c.CardNumber == cardNumber);
+
+            if (card != null && CheckParking(card))
+            {
+                var parking = card.Parkings.FirstOrDefault(p => p.ExitDate == null);
+                parking.ExitDate = DateTime.Now;
+                Update(parking);
+                await SaveChangesAsync();
+
+                return true;
+            }
+            else
+                return false;
+        }
     }
 }

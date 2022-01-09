@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using iot_parking.Database;
 
 namespace iot_parking.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20220108145148_AddUniqueNumber")]
+    partial class AddUniqueNumber
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -119,28 +121,6 @@ namespace iot_parking.Migrations
                         .IsUnique();
 
                     b.ToTable("ScannedCards");
-                });
-
-            modelBuilder.Entity("iot_parking.Models.Terminal", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("TerminalNumber")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TerminalNumber")
-                        .IsUnique();
-
-                    b.ToTable("Terminals");
                 });
 
             modelBuilder.Entity("iot_parking.Models.CardOwner", b =>
