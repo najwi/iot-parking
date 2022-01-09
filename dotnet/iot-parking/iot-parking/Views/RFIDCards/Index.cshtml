@@ -4,7 +4,7 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1 class="h1">Karty</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -13,27 +13,64 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.CardNumber)
+                @Html.DisplayName("Nr karty")
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.IsActive)
+                @Html.DisplayName("Aktywna")
+            </th>
+            <th>
+                @Html.DisplayName("Imie")
+            </th>
+            <th>
+                @Html.DisplayName("Nazwisko")
+            </th>
+            <th>
+                @Html.DisplayName("Email")
+            </th>
+            <th>
+                @Html.DisplayName("Data wydania")
+            </th>
+            <th>
+                @Html.DisplayName("Data ważności")
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+@foreach (RFIDCard item in Model) {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.CardNumber)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.IsActive)
+                @if (item.IsActive)
+                {
+                    @:Tak
+                }
+                else
+                {
+                    @:Nie
+                }
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                @Html.DisplayFor(modelItem => item.CardOwner.Firstname)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CardOwner.Lastname)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CardOwner.Email)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CardOwner.IssueDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CardOwner.ValidDate)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edytuj</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Detale</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Usuń</a>
             </td>
         </tr>
 }

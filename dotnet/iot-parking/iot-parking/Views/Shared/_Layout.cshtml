@@ -11,7 +11,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">iot_parking</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">System kontroli parkingu</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -22,13 +22,13 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="RFIDCards" asp-action="Index">RFID Cards</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="CardOwners" asp-action="Index">Właściciele</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Parkings" asp-action="Index">Parkings</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="RFIDCards" asp-action="Index">Karty</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="CardOwners" asp-action="Index">Card Owners</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Parkings" asp-action="Index">Wjazdy i wyjazdy</a>
                         </li>
                     </ul>
                 </div>
@@ -43,7 +43,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2022 - iot_parking - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2022 - System kontroli parkingu
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

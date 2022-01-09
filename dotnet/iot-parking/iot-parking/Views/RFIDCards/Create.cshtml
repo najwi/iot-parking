@@ -1,27 +1,64 @@
-﻿@model iot_parking.Models.RFIDCard
+﻿@model iot_parking.Models.CardOwnerRFIDCard
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Tworzenie karty";
 }
 
-<h1>Create</h1>
+<h1>Dodawanie karty</h1>
 
-<h4>RFIDCard</h4>
+<h4>Karta</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="CardNumber" class="control-label"></label>
-                <input asp-for="CardNumber" class="form-control" />
+                <label asp-for="CardNumber" class="control-label">Numer karty</label>
+                <div class="row">
+                    <input asp-for="CardNumber" class="form-control col-md" value=@ViewBag.cardNr />
+                    <input type="button" class="btn btn-outline-primary col-sm" value="Zeskanowane karty" onclick="location.href='@Url.Action("PickCard", "RFIDCards")'" />
+                </div>
                 <span asp-validation-for="CardNumber" class="text-danger"></span>
             </div>
             <div class="form-group form-check">
                 <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsActive" /> @Html.DisplayNameFor(model => model.IsActive)
+                    <input class="form-check-input" asp-for="IsActive" /> Aktywna
                 </label>
             </div>
+
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="HasOwner" /> Ma właściciela
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Firstname" class="control-label"></label>
+                <input asp-for="Firstname" class="form-control" />
+                <span asp-validation-for="Firstname" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Lastname" class="control-label"></label>
+                <input asp-for="Lastname" class="form-control" />
+                <span asp-validation-for="Lastname" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IssueDate" class="control-label"></label>
+                <input asp-for="IssueDate" class="form-control" />
+                <span asp-validation-for="IssueDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ValidDate" class="control-label"></label>
+                <input asp-for="ValidDate" class="form-control" />
+                <span asp-validation-for="ValidDate" class="text-danger"></span>
+            </div>
+
+
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
