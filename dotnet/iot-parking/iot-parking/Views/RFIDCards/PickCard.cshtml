@@ -29,7 +29,8 @@
                     @Html.DisplayFor(modelItem => item.ScanDate)
                 </td>
                 <td>
-                    <input type="button" class="btn btn-outline-primary" value="Wybierz" onclick="location.href='@Url.Action("Create", "RFIDCards", new { cardId = item.Id })'" />
+                    <input type="button" class="btn btn-outline-primary" value="Wybierz" 
+                           onclick="location.href='@Url.Action(TempData["pickCard"].ToString(), "RFIDCards", new { id = TempData["carId"], cardId = item.Id })'" />
                 </td>
             </tr>
         }

@@ -1,14 +1,21 @@
 ﻿@model IEnumerable<iot_parking.Models.RFIDCard>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Karty";
 }
+    <h1 class="h1">Karty</h1>
+    <input type="button" value="Dodaj nową" class="btn btn-primary" onclick="location.href='@Url.Action("Create", "RFIDCards")'" />
+<hr/>
+<form asp-action="Index" method="get">
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <input type="submit" class="btn btn-outline-primary" value="Wyszukaj" />
+            <input type="button" value="x" class="btn btn-outline-secondary" onclick="location.href='@Url.Action("Index", "RFIDCards")'" />
+        </div>
+        <input type="text" name="search" id="search-box" class="form-control" />
+    </div>
+</form>
 
-<h1 class="h1">Karty</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 <table class="table">
     <thead>
         <tr>

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using iot_parking.Database;
 using iot_parking.Models;
@@ -20,10 +18,21 @@ namespace iot_parking.Controllers
         }
 
         // GET: RFIDCards
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? search)
         {
-            var databaseContext = _context.RFIDCards.Include(c => c.CardOwner);
-            return View(await databaseContext.ToListAsync());
+            var databaseContext = _context.RFIDCards.Include(c => c.CardOwner).ToList();
+            if (search != null)
+            {
+                var filteredList = databaseContext.FindAll(
+                    c => { 
+                        if(c.CardOwner != null)
+                            return c.CardNumber == search || c.CardOwner.Firstname == search || c.CardOwner.Lastname == search || c.CardOwner.Email == search;
+                        return c.CardNumber == search;
+                    });
+                return View(filteredList);
+            }
+
+            return View(databaseContext);
         }
 
         // GET: RFIDCards/Details/5
@@ -46,10 +55,10 @@ namespace iot_parking.Controllers
         }
 
         // GET: RFIDCards/Create
-        //[Route("RFIDCards/Create/{cardId?}")]
         public async Task<IActionResult> Create(int? cardId)
         {
-            if(cardId != null)
+            TempData["pickCard"] = "Create";
+            if (cardId != null)
             {
                 var scannedCard = await _context.ScannedCards.FirstOrDefaultAsync(c => c.Id == cardId);
 
@@ -74,7 +83,7 @@ namespace iot_parking.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([Bind("CardNumber,IsActive,HasOwner,Firstname,Lastname,Email,IssueDate,ValidDate")] CardOwnerRFIDCard card)
+        public async Task<IActionResult> Create([Bind("CardNumber,IsActive,HasOwner,Firstname,Lastname,Email,IssueDate,ValidDate")] CardOwnerRFIDCard card)
         {
             if (ModelState.IsValid)
             {
@@ -96,7 +105,7 @@ namespace iot_parking.Controllers
                     cardOwner.CardId = newCard.Id;
 
                     _context.Add(cardOwner);
-                    _context.SaveChanges();
+                    await _context.SaveChangesAsync();
                 }
 
                 return RedirectToAction(nameof(Index));
@@ -105,22 +114,59 @@ namespace iot_parking.Controllers
         }
 
         // GET: RFIDCards/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? id, int? cardId)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
+            TempData["pickCard"] = "Edit";
+            TempData["carId"] = id;
+
             var rFIDCard = await _context.RFIDCards
                 .Include(c => c.CardOwner)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (rFIDCard == null)
             {
                 return NotFound();
             }
 
-            return View(rFIDCard);
+            if (cardId != null)
+            {
+                var scannedCard = await _context.ScannedCards.FirstOrDefaultAsync(c => c.Id == cardId);
+
+                if (scannedCard != null)
+                {
+                    ViewBag.cardNr = scannedCard.CardNumber;
+                }
+
+            }
+            else
+            {
+                ViewBag.cardNr = rFIDCard.CardNumber;
+            }
+
+            CardOwnerRFIDCard card = new();
+            card.CardNumber = rFIDCard.CardNumber;
+            card.IsActive = rFIDCard.IsActive;
+            
+            if(rFIDCard.CardOwner != null)
+            {
+                card.HasOwner = true;
+                card.Firstname = rFIDCard.CardOwner.Firstname;
+                card.Lastname = rFIDCard.CardOwner.Lastname;
+                card.Email = rFIDCard.CardOwner.Email;
+                card.IssueDate = rFIDCard.CardOwner.IssueDate;
+                card.ValidDate = rFIDCard.CardOwner.ValidDate;
+            }
+            else
+            {
+                card.HasOwner = false;
+            }
+
+            return View(card);
         }
 
         // POST: RFIDCards/Edit/5
