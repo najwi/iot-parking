@@ -145,19 +145,40 @@ namespace iot_parking.Services
             Console.WriteLine($"### SUBSCRIBED TO {CardReaderTopic}+ ###");
         }
 
-        public Task HandleDisconnectedAsync(MqttClientDisconnectedEventArgs eventArgs)
+        public async Task HandleDisconnectedAsync(MqttClientDisconnectedEventArgs eventArgs)
         {
             Console.WriteLine("### DISCONNECTED FROM SERVER ###");
-            return Task.Delay(1);
+            await Task.Delay(TimeSpan.FromSeconds(5));
+
+            try
+            {
+                await _mqttClient.ConnectAsync(_options, CancellationToken.None); 
+                if (!_mqttClient.IsConnected)
+                {
+                    await _mqttClient.ReconnectAsync(CancellationToken.None);
+                }
+            }
+            catch
+            {
+                Console.WriteLine("### RECONNECTING TO SERVER FAILED ###");
+            }
+
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             Console.WriteLine("### CONNECTING TO SERVER ###");
-            await _mqttClient.ConnectAsync(_options);
-            if (!_mqttClient.IsConnected)
+            try
             {
-                await _mqttClient.ReconnectAsync();
+                await _mqttClient.ConnectAsync(_options, CancellationToken.None);
+                if (!_mqttClient.IsConnected)
+                {
+                    await _mqttClient.ReconnectAsync(CancellationToken.None);
+                }
+            }
+            catch
+            {
+                Console.WriteLine("### CONNECTING TO SERVER FAILED ###");
             }
         }
 

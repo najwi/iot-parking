@@ -1,8 +1,12 @@
-pattern readwrite gate/e/%c
-pattern readwrite gate/l/%c
-pattern readwrite reader/%c
+pattern write gate/e/%c
+pattern write gate/l/%c
+pattern write reader/%c
+pattern read gate/e/%c/r
+pattern read gate/l/%c/r
 
 user server5434783
-topic readwrite gate/e/+
-topic readwrite gate/l/+
-topic readwrite reader/+
+topic read gate/e/+
+topic read gate/l/+
+topic read reader/+
+topic write gate/e/+/r
+topic write gate/l/+/r

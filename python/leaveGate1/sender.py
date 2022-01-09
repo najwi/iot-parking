@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import ssl
 
 import paho.mqtt.client as mqtt
 from paho.mqtt.client import MQTTv311
@@ -38,6 +39,11 @@ username = config.username
 password = config.password
 topic = f"{config.topic}/{client_id}"
 
+caCrt = config.caCrt
+clientCrt = config.clientCrt
+clientKey = config.clientKey
+keyPassword = config.keyPassword
+
 client = None
 window = tkinter.Tk()
 
@@ -72,11 +78,12 @@ def create_main_window():
     button_stop.grid(row=4, column = 2, columnspan=3, sticky=tkinter.W, pady=5, ipady=3, ipadx=7 )
 
 
-
 def connect_to_broker():
     global client
-    client = mqtt.Client(client_id, clean_session=False, protocol=MQTTv311)
+    client = mqtt.Client(client_id, clean_session=False, protocol=MQTTv311, transport="tcp")
     client.username_pw_set(username, password)
+    client.tls_set(ca_certs=caCrt, certfile=clientCrt, keyfile=clientKey, tls_version=ssl.PROTOCOL_TLSv1_2,
+                   ciphers=None, keyfile_password=keyPassword, cert_reqs=ssl.CERT_NONE)
     client.connect(broker, port)
     client.on_message = process_message
     client.loop_start()

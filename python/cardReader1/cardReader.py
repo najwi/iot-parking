@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
+import ssl
 
 import paho.mqtt.client as mqtt
 from paho.mqtt.client import MQTTv311
 import tkinter
 import random
-import readerConfig as config
+import cardReaderConfig as config
 ### RaspberryPi version: ###
 
 #import time
@@ -37,6 +38,11 @@ client_id = config.client_id
 username = config.username
 password = config.password
 topic = f"{config.topic}/{client_id}"
+
+caCrt = config.caCrt
+clientCrt = config.clientCrt
+clientKey = config.clientKey
+keyPassword = config.keyPassword
 
 client = None
 window = tkinter.Tk()
@@ -71,6 +77,8 @@ def connect_to_broker():
     global client
     client = mqtt.Client(client_id, clean_session=False, protocol=MQTTv311)
     client.username_pw_set(username, password)
+    client.tls_set(ca_certs=caCrt, certfile=clientCrt, keyfile=clientKey, tls_version=ssl.PROTOCOL_TLSv1_2,
+                   ciphers=None, keyfile_password=keyPassword, cert_reqs=ssl.CERT_NONE)
     client.connect(broker, port)
     client.loop_start()
 
