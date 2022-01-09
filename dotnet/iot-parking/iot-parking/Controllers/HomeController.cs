@@ -37,11 +37,5 @@ namespace iot_parking.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-
-        public IActionResult SendMessage()
-        {
-            _mqtt.SendMessage("clicked");
-            return RedirectToAction(nameof(Index));
-        }
     }
 }
