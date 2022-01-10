@@ -14,7 +14,7 @@
             <div class="form-group">
                 <label asp-for="CardNumber" class="control-label">Numer karty</label>
                 <div class="row">
-                    <input asp-for="CardNumber" class="form-control col-md" value=@ViewBag.cardNr />
+                    <input asp-for="CardNumber" class="form-control col-md" />
                     <input type="button" class="btn btn-outline-primary col-sm" value="Zeskanowane karty" onclick="location.href='@Url.Action("PickCard", "RFIDCards")'" />
                 </div>
                 <span asp-validation-for="CardNumber" class="text-danger"></span>

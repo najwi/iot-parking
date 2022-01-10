@@ -58,17 +58,21 @@ namespace iot_parking.Controllers
         public async Task<IActionResult> Create(int? cardId)
         {
             TempData["pickCard"] = "Create";
+            CardOwnerRFIDCard card = new();
+            card.IssueDate = System.DateTime.Now;
+            card.ValidDate = System.DateTime.Now.AddDays(30);
             if (cardId != null)
             {
                 var scannedCard = await _context.ScannedCards.FirstOrDefaultAsync(c => c.Id == cardId);
 
                 if(scannedCard != null)
                 {
-                    ViewBag.cardNr = scannedCard.CardNumber;
+                    card.CardNumber = scannedCard.CardNumber;
+                    //ViewBag.cardNr = scannedCard.CardNumber;
                 }
 
             }
-            return View();
+            return View(card);
         }
 
         public async Task<IActionResult> PickCard()
