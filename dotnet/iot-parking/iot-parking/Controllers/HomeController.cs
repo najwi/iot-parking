@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
-using iot_parking.Models;
 using iot_parking.Services;
 
 namespace iot_parking.Controllers
@@ -36,12 +35,6 @@ namespace iot_parking.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-
-        public IActionResult SendMessage()
-        {
-            _mqtt.SendMessage("clicked");
-            return RedirectToAction(nameof(Index));
         }
     }
 }

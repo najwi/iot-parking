@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace iot_parking.Models
 {
@@ -25,9 +21,9 @@ namespace iot_parking.Models
         [MaxLength(50)]
         public string Email { get; set; }
 
-        public DateTime IssueDate { get; set; }
+        public DateTime? IssueDate { get; set; }
 
-        public DateTime ValidDate { get; set; }
+        public DateTime? ValidDate { get; set; }
 
         public bool HasOwner { get; set; }
     }

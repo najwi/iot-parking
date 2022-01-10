@@ -86,6 +86,7 @@ namespace iot_parking.Services
             using (var scope = _scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+
                 DbResponse message = await db.CheckLeave(clientId, cardNumber);
                 Console.WriteLine($"Open gate: {message}");
                 await SendGateResponse(messageTopic, message);
@@ -175,12 +176,6 @@ namespace iot_parking.Services
             {
                 Console.WriteLine("### CONNECTING TO SERVER FAILED ###");
             }
-        }
-
-        // Utility test function
-        public async Task SendMessage(string message) 
-        {
-            await _mqttClient.PublishAsync(message);
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)

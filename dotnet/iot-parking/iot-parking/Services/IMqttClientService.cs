@@ -11,6 +11,6 @@ namespace iot_parking.Services
                                           IMqttClientDisconnectedHandler,
                                           IMqttApplicationMessageReceivedHandler
     {
-        public Task SendMessage(string message);
+
     }
 }
