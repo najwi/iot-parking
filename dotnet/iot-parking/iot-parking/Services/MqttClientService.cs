@@ -25,9 +25,6 @@ namespace iot_parking.Services
         private const string LeaveGatesTopic = "gate/l/";
         private const string CardReaderTopic = "reader/";
 
-        private const string OpenGateSuccessMessage = "success";
-        private const string OpenGateFailureMessage = "failure";
-
         public MqttClientService(IMqttClientOptions options, IServiceScopeFactory scopeFactory)
         {
             this._options = options;

@@ -18,8 +18,6 @@ namespace iot_parking
 {
     public class Startup
     {
-        X509Certificate2 _caCrt = new X509Certificate2(File.ReadAllBytes("mqtt_ca.crt"));
-        X509Certificate2 _mvcServerCert = new X509Certificate2("client_certificate.pfx", "1234");
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -64,6 +62,8 @@ namespace iot_parking
                 optionBuilder
                     .WithCredentials(clientSettings.UserName, clientSettings.Password)
                     .WithClientId(clientSettings.Id)
+                    .WithCleanSession(true)
+                    .WithKeepAlivePeriod(new System.TimeSpan(0, 0, 30))
                     .WithTcpServer(brokerHostSettings.Host, brokerHostSettings.Port);
 
                 optionBuilder.WithTls(new MqttClientOptionsBuilderTlsParameters()
@@ -72,7 +72,7 @@ namespace iot_parking
                     SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
                     Certificates = new List<X509Certificate>()
                     {
-                        _mvcServerCert
+                        new X509Certificate2(clientSettings.CertFile, clientSettings.CertPassword)
                     },
                     CertificateValidationHandler = (certContext) =>
                     {
@@ -82,7 +82,7 @@ namespace iot_parking
                         chain.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;
                         chain.ChainPolicy.VerificationTime = System.DateTime.Now;
                         chain.ChainPolicy.UrlRetrievalTimeout = new System.TimeSpan(0, 0, 0);
-                        chain.ChainPolicy.CustomTrustStore.Add(_caCrt);
+                        chain.ChainPolicy.CustomTrustStore.Add(new X509Certificate2(File.ReadAllBytes(brokerHostSettings.CACertFile)));
                         chain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
 
                         var x5092 = new X509Certificate2(certContext.Certificate);
