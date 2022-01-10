@@ -43,13 +43,10 @@ namespace iot_parking.Services
             _mqttClient.ApplicationMessageReceivedHandler = this;
         }
 
-        private async Task SendGateResponse(string messageTopic, bool openGate)
+        private async Task SendGateResponse(string messageTopic, DbResponse gateMessage)
         {
             byte[] bytes;
-            if (openGate)
-                bytes = Encoding.UTF8.GetBytes($"status:{OpenGateSuccessMessage};");
-            else
-                bytes = Encoding.UTF8.GetBytes($"status:{OpenGateFailureMessage};");
+            bytes = Encoding.UTF8.GetBytes($"status:{gateMessage};");
             string ResponseTopic = $"{messageTopic}/r";
 
             MqttApplicationMessageBuilder message = new MqttApplicationMessageBuilder()
@@ -75,9 +72,9 @@ namespace iot_parking.Services
             using (var scope = _scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-                bool openGate = await db.CheckEntry(clientId, cardNumber);
-                Console.WriteLine($"Open gate: {openGate}");
-                await SendGateResponse(messageTopic, openGate);
+                DbResponse message = await db.CheckEntry(clientId, cardNumber);
+                Console.WriteLine($"Open gate: {message}");
+                await SendGateResponse(messageTopic, message);
             }
         }
 
@@ -89,11 +86,9 @@ namespace iot_parking.Services
             using (var scope = _scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-                // bool openGate = await db.CheckLeave(clientId, cardNumber);
-                bool openGate = true;
-                openGate = await db.SaveLeave(cardNumber);
-                Console.WriteLine($"Open gate: {openGate}");
-                await SendGateResponse(messageTopic, openGate);
+                DbResponse message = await db.CheckLeave(clientId, cardNumber);
+                Console.WriteLine($"Open gate: {message}");
+                await SendGateResponse(messageTopic, message);
             }
         }
 

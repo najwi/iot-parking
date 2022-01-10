@@ -7,6 +7,17 @@ using System.Threading.Tasks;
 
 namespace iot_parking.Database
 {
+    public enum DbResponse
+    {
+        Success,
+        NotExistingTerminal,
+        WrongTerminaltype,
+        NotExistingCard,
+        DeactivatedCard,
+        CardUsedToEntry,
+        NotExistingParking
+    }
+
     public class DatabaseContext : DbContext
     {
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
@@ -32,42 +43,56 @@ namespace iot_parking.Database
 
         public DbSet<Terminal> Terminals { get; set; }
 
-        private bool CheckCard(RFIDCard? card)
+        private DbResponse CheckCard(RFIDCard? card)
         {
+            if (card == null)
+                return DbResponse.NotExistingCard;
+
             var parking = card.Parkings.FirstOrDefault(p => p.ExitDate == null);
 
-            if (card == null || parking != null)
-                return false;
+            if (parking != null)
+                return DbResponse.CardUsedToEntry;
             else
-                return card.IsActive;
+            {
+                if (card.IsActive)
+                    return DbResponse.Success;
+                else
+                    return DbResponse.DeactivatedCard;
+            }
         }
 
-        private bool CheckParking(RFIDCard? card)
+        private DbResponse CheckParking(RFIDCard? card)
         {
+            if (card == null)
+                return DbResponse.NotExistingCard;
+
             var parkings = card.Parkings.Where(p => p.ExitDate == null).ToList();
 
-            if (card == null || parkings.Count != 1 )
-                return false;
+            if (parkings.Count != 1)
+                return DbResponse.NotExistingParking;
             else
-                return true;
+                return DbResponse.Success;
         }
 
-        public async Task<bool> CheckEntry(string terminalNumber, string cardNumber)
+        public async Task<DbResponse> CheckEntry(string terminalNumber, string cardNumber)
         {
             var terminal = Terminals.FirstOrDefault(t => t.TerminalNumber.Equals(terminalNumber));
 
-            if (terminal != null && terminal.Type == TerminalTypes.EntryGate)
-                return await SaveEntry(cardNumber);
+            if (terminal == null)
+                return DbResponse.NotExistingTerminal;
+            else if (terminal.Type != TerminalTypes.EntryGate)
+                return DbResponse.WrongTerminaltype;
             else
-                return false;
+                return await SaveEntry(cardNumber);
             
         }
 
-        public async Task<bool> SaveEntry(string cardNumber)
+        private async Task<DbResponse> SaveEntry(string cardNumber)
         {
             var card = RFIDCards.Include(c => c.Parkings).FirstOrDefault(c => c.CardNumber.Equals(cardNumber));
+            DbResponse response = CheckCard(card);
 
-            if (card != null && CheckCard(card))
+            if (card != null && response == DbResponse.Success)
             {
                 Parking parking = new Parking()
                 {
@@ -78,37 +103,40 @@ namespace iot_parking.Database
                 Add(parking);
                 await SaveChangesAsync();
 
-                return true;
+                return DbResponse.Success;
             }
             else
-                return false;
+                return response;
         }
 
-        public async Task<bool> CheckLeave(string terminalNumber, string cardNumber)
+        public async Task<DbResponse> CheckLeave(string terminalNumber, string cardNumber)
         {
             var terminal = Terminals.FirstOrDefault(t => t.TerminalNumber.Equals(terminalNumber));
 
-            if (terminal != null && terminal.Type == TerminalTypes.ExitGate)
-                return await SaveLeave(cardNumber);
+            if (terminal == null)
+                return DbResponse.NotExistingTerminal;
+            else if (terminal.Type != TerminalTypes.ExitGate)
+                return DbResponse.WrongTerminaltype;
             else
-                return false;
+                return await SaveLeave(cardNumber);
         }
 
-        public async Task<bool> SaveLeave(string cardNumber)
+        private async Task<DbResponse> SaveLeave(string cardNumber)
         {
             var card = RFIDCards.Include(c => c.Parkings).FirstOrDefault(c => c.CardNumber.Equals(cardNumber));
+            DbResponse response = CheckParking(card);
 
-            if (card != null && CheckParking(card))
+            if (card != null && response == DbResponse.Success)
             {
                 var parking = card.Parkings.FirstOrDefault(p => p.ExitDate == null);
                 parking.ExitDate = DateTime.Now;
                 Update(parking);
                 await SaveChangesAsync();
 
-                return true;
+                return DbResponse.Success;
             }
             else
-                return false;
+                return response;
         }
     }
 }
