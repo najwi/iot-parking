@@ -6,6 +6,7 @@ import ssl
 import tkinter
 import random
 import time
+import datetime
 import gateClientConfig as config
 ### RaspberryPi version: ###
 
@@ -48,6 +49,9 @@ keyPassword = config.keyPassword
 client = None
 window = tkinter.Tk()
 
+time_worker_called = datetime.datetime.now().timestamp()*1000
+
+
 
 def process_message(client, userdata, message):
     message_decoded = (str(message.payload.decode("utf-8")))
@@ -59,7 +63,11 @@ def process_message(client, userdata, message):
 
 
 def call_worker(card_number):
-    client.publish(topic, payload="card:"+card_number, qos=2, retain=False)
+    global time_worker_called
+    time_diff = datetime.datetime.now().timestamp()*1000 - time_worker_called
+    if time_diff >= 1000:
+        client.publish(topic, payload="card:"+card_number, qos=2, retain=False)
+    time_worker_called = datetime.datetime.now().timestamp()*1000
 
 
 def create_main_window():
