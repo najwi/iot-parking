@@ -68,7 +68,6 @@ namespace iot_parking.Controllers
                 if(scannedCard != null)
                 {
                     card.CardNumber = scannedCard.CardNumber;
-                    //ViewBag.cardNr = scannedCard.CardNumber;
                 }
 
             }
@@ -178,15 +177,47 @@ namespace iot_parking.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,CardNumber,IsActive")] RFIDCard rFIDCard)
+        public async Task<IActionResult> Edit(int id, [Bind("CardNumber,IsActive,HasOwner,Firstname,Lastname,Email,IssueDate,ValidDate")] CardOwnerRFIDCard card)
         {
-            if (id != rFIDCard.Id)
-            {
-                return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
+                var rFIDCard = _context.RFIDCards.FirstOrDefault(c => c.Id == id);
+                if (rFIDCard == null)
+                    return NotFound();
+
+                rFIDCard.CardNumber = card.CardNumber;
+                rFIDCard.IsActive = card.IsActive;
+
+                if (!card.HasOwner)
+                {
+                    rFIDCard.CardNumber = null;
+                }
+                else
+                {
+                    CardOwner cardOwner = new();
+
+                    if (rFIDCard.CardOwner != null)
+                    {
+                        cardOwner = rFIDCard.CardOwner;
+                    }
+
+                    cardOwner.Firstname = card.Firstname;
+                    cardOwner.Lastname = card.Lastname;
+                    cardOwner.Email = card.Email;
+                    cardOwner.IssueDate = card.IssueDate.Value;
+                    cardOwner.ValidDate = card.ValidDate.Value;
+                    rFIDCard.CardOwner = cardOwner;
+                    cardOwner.CardId = rFIDCard.Id;
+
+                    if (rFIDCard.CardOwner == null)
+                    {
+                        _context.Add(cardOwner);
+                    }else
+                    {
+                        _context.Update(cardOwner);
+                    }
+                }
+
                 try
                 {
                     _context.Update(rFIDCard);
@@ -205,7 +236,7 @@ namespace iot_parking.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(rFIDCard);
+            return View(card);
         }
 
         // GET: RFIDCards/Delete/5
