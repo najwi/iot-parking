@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using System.Security.Cryptography.X509Certificates;
 using System.IO;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
 
 namespace iot_parking
 {
@@ -100,9 +101,13 @@ namespace iot_parking
             });
 
             services.AddControllersWithViews();
+
+            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
+                .AddRoles<IdentityRole>()
+                .AddEntityFrameworkStores<DatabaseContext>();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             if (env.IsDevelopment())
             {
@@ -118,13 +123,18 @@ namespace iot_parking
 
             app.UseRouting();
 
+            app.UseAuthentication();
+
             app.UseAuthorization();
+
+            IdentityDataInitializer.SeedData(userManager, roleManager);
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapRazorPages();
             });
         }
     }

@@ -1,4 +1,5 @@
 ﻿using iot_parking.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace iot_parking.Database
         CardAlreadyAdded
     }
 
-    public class DatabaseContext : DbContext
+    public class DatabaseContext : IdentityDbContext
     {
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
         {
@@ -31,6 +32,8 @@ namespace iot_parking.Database
                 .HasOne(s => s.CardOwner)
                 .WithOne(s => s.RFIDCard)
                 .HasForeignKey<CardOwner>(s => s.CardId);
+
+            base.OnModelCreating(modelBuilder);
         }
 
         public DbSet<RFIDCard> RFIDCards { get; set; }
@@ -115,7 +118,7 @@ namespace iot_parking.Database
             var card = RFIDCards.Include(c => c.Parkings).Include(c => c.CardOwner).FirstOrDefault(c => c.CardNumber.Equals(cardNumber));
             DbResponse response = CheckCard(card);
 
-            if (card != null && response == DbResponse.Success)
+            if (response == DbResponse.Success)
             {
                 Parking parking = new()
                 {
@@ -147,7 +150,7 @@ namespace iot_parking.Database
             var card = RFIDCards.Include(c => c.Parkings).FirstOrDefault(c => c.CardNumber.Equals(cardNumber));
             DbResponse response = CheckParking(card);
 
-            if (card != null && response == DbResponse.Success)
+            if (response == DbResponse.Success)
             {
                 var parking = card.Parkings.FirstOrDefault(p => p.ExitDate == null);
                 parking.ExitDate = DateTime.Now;
@@ -170,7 +173,7 @@ namespace iot_parking.Database
                 return response;
         }
 
-        public async Task<DbResponse> SaveCard(string cardNumber)
+        private async Task<DbResponse> SaveCard(string cardNumber)
         {
             var card = RFIDCards.FirstOrDefault(c => c.CardNumber.Equals(cardNumber));
 
