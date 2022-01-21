@@ -1,12 +1,12 @@
 ﻿@model iot_parking.Models.Parking
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edycja";
 }
 
-<h1>Edit</h1>
+<h1>Ecydja wpisu</h1>
 
-<h4>Parking</h4>
+<h4>Wpis</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -14,29 +14,29 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
-                <label asp-for="EntryDate" class="control-label"></label>
+                <label asp-for="EntryDate" class="control-label">Data wjazdu</label>
                 <input asp-for="EntryDate" class="form-control" />
                 <span asp-validation-for="EntryDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ExitDate" class="control-label"></label>
+                <label asp-for="ExitDate" class="control-label">Data wyjazdu</label>
                 <input asp-for="ExitDate" class="form-control" />
                 <span asp-validation-for="ExitDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="CardId" class="control-label"></label>
+                <label asp-for="CardId" class="control-label">Numer karty</label>
                 <select asp-for="CardId" class="form-control" asp-items="ViewBag.CardId"></select>
                 <span asp-validation-for="CardId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <input type="submit" value="Zapisz" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Powrót</a>
 </div>
 
 @section Scripts {
