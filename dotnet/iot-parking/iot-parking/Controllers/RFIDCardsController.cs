@@ -20,7 +20,7 @@ namespace iot_parking.Controllers
         // GET: RFIDCards
         public async Task<IActionResult> Index(string? search)
         {
-            var databaseContext = _context.RFIDCards.Include(c => c.CardOwner).ToList();
+            var databaseContext = _context.RFIDCards.Include(c => c.CardOwner).OrderByDescending(c => c.CardOwner.IssueDate).ToList();
             if (search != null)
             {
                 var filteredList = databaseContext.FindAll(
@@ -58,6 +58,7 @@ namespace iot_parking.Controllers
         public async Task<IActionResult> Create(int? cardId)
         {
             TempData["pickCard"] = "Create";
+            TempData["duplicateCard"] = false;
             CardOwnerRFIDCard card = new();
             card.IssueDate = System.DateTime.Now;
             card.ValidDate = System.DateTime.Now.AddDays(30);
@@ -95,7 +96,15 @@ namespace iot_parking.Controllers
                 rFIDCard.IsActive = card.IsActive;
 
                 _context.Add(rFIDCard);
-                _context.SaveChanges();
+                try
+                {
+                    _context.SaveChanges();
+                }
+                catch (DbUpdateException)
+                {
+                    TempData["duplicateCard"] = true;
+                    return View(card);
+                }
 
                 if (card.HasOwner) {
                     var newCard = _context.RFIDCards.FirstOrDefault(c => c.CardNumber == card.CardNumber);
@@ -103,12 +112,21 @@ namespace iot_parking.Controllers
                     cardOwner.Firstname = card.Firstname;
                     cardOwner.Lastname = card.Lastname;
                     cardOwner.Email = card.Email;
-                    cardOwner.IssueDate = card.IssueDate.Value;
-                    cardOwner.ValidDate = card.ValidDate.Value;
+                    cardOwner.IssueDate = card.IssueDate;
+                    cardOwner.ValidDate = card.ValidDate;
                     cardOwner.CardId = newCard.Id;
 
                     _context.Add(cardOwner);
-                    await _context.SaveChangesAsync();
+
+                    try
+                    {
+                        await _context.SaveChangesAsync();
+                    }
+                    catch (DbUpdateException)
+                    {
+                        TempData["duplicateCard"] = true;
+                        return View(card);
+                    }
                 }
 
                 return RedirectToAction(nameof(Index));
@@ -126,6 +144,7 @@ namespace iot_parking.Controllers
 
             TempData["pickCard"] = "Edit";
             TempData["carId"] = id;
+            TempData["duplicateCard"] = false;
 
             var rFIDCard = await _context.RFIDCards
                 .Include(c => c.CardOwner)
@@ -144,7 +163,6 @@ namespace iot_parking.Controllers
                 {
                     ViewBag.cardNr = scannedCard.CardNumber;
                 }
-
             }
             else
             {
@@ -181,7 +199,7 @@ namespace iot_parking.Controllers
         {
             if (ModelState.IsValid)
             {
-                var rFIDCard = _context.RFIDCards.FirstOrDefault(c => c.Id == id);
+                var rFIDCard = _context.RFIDCards.Include(c => c.CardOwner).FirstOrDefault(c => c.Id == id);
                 if (rFIDCard == null)
                     return NotFound();
 
@@ -190,34 +208,36 @@ namespace iot_parking.Controllers
 
                 if (!card.HasOwner)
                 {
-                    rFIDCard.CardNumber = null;
+                    if(rFIDCard.CardOwner != null)
+                    {
+                        CardOwner cardOwner = rFIDCard.CardOwner;
+                        rFIDCard.CardOwner = null;
+                        _context.Remove(cardOwner);
+                        _context.SaveChanges();
+                    }
                 }
                 else
                 {
-                    CardOwner cardOwner = new();
-
                     if (rFIDCard.CardOwner != null)
                     {
-                        cardOwner = rFIDCard.CardOwner;
+                        rFIDCard.CardOwner.Firstname = card.Firstname;
+                        rFIDCard.CardOwner.Lastname = card.Lastname;
+                        rFIDCard.CardOwner.Email = card.Email;
+                        rFIDCard.CardOwner.IssueDate = card.IssueDate;
+                        rFIDCard.CardOwner.ValidDate = card.ValidDate;
                     }
-
-                    cardOwner.Firstname = card.Firstname;
-                    cardOwner.Lastname = card.Lastname;
-                    cardOwner.Email = card.Email;
-                    cardOwner.IssueDate = card.IssueDate.Value;
-                    cardOwner.ValidDate = card.ValidDate.Value;
-                    rFIDCard.CardOwner = cardOwner;
-                    cardOwner.CardId = rFIDCard.Id;
-
-                    if (rFIDCard.CardOwner == null)
+                    else
                     {
-                        _context.Add(cardOwner);
-                    }else
-                    {
-                        _context.Update(cardOwner);
+                        CardOwner cardOwner = new();
+                        cardOwner.Firstname = card.Firstname;
+                        cardOwner.Lastname = card.Lastname;
+                        cardOwner.Email = card.Email;
+                        cardOwner.IssueDate = card.IssueDate;
+                        cardOwner.ValidDate = card.ValidDate;
+                        rFIDCard.CardOwner = cardOwner;
                     }
                 }
-
+                
                 try
                 {
                     _context.Update(rFIDCard);
@@ -233,6 +253,11 @@ namespace iot_parking.Controllers
                     {
                         throw;
                     }
+                }
+                catch (DbUpdateException)
+                {
+                    TempData["duplicateCard"] = true;
+                    return View(card);
                 }
                 return RedirectToAction(nameof(Index));
             }

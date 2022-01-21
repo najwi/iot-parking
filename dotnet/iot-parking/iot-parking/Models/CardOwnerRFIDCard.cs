@@ -21,7 +21,7 @@ namespace iot_parking.Models
         [MaxLength(50)]
         public string Email { get; set; }
 
-        public DateTime? IssueDate { get; set; }
+        public DateTime IssueDate { get; set; }
 
         public DateTime? ValidDate { get; set; }
 
