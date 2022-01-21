@@ -98,8 +98,9 @@ namespace iot_parking.Services
             using (var scope = _scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-                // Todo
-                // Save new card for later registration
+
+                DbResponse message = await db.CheckCard(clientId, cardNumber);
+                Console.WriteLine($"Success: {message}");
             }
         }
 
