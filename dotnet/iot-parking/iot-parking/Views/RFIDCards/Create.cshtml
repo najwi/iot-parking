@@ -18,6 +18,10 @@
                     <input type="button" class="btn btn-outline-primary col-sm" value="Zeskanowane karty" onclick="location.href='@Url.Action("PickCard", "RFIDCards")'" />
                 </div>
                 <span asp-validation-for="CardNumber" class="text-danger"></span>
+                @if ((bool)TempData["duplicateCard"])
+                {
+                    @:<span class="text-danger">Numer karty musi być unikatowy!</span>
+                }
             </div>
             <div class="form-group form-check">
                 <label class="form-check-label">
@@ -37,7 +41,7 @@
                 <span asp-validation-for="Firstname" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Lastname" class="control-label">Nazwiko</label>
+                <label asp-for="Lastname" class="control-label">Nazwisko</label>
                 <input asp-for="Lastname" class="form-control owner" />
                 <span asp-validation-for="Lastname" class="text-danger"></span>
             </div>
