@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
 using iot_parking.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace iot_parking.Controllers
 {
