@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using iot_parking.Database;
 using iot_parking.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace iot_parking.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class RFIDCardsController : Controller
     {
         private readonly DatabaseContext _context;

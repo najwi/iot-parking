@@ -1,7 +1,14 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+
+@{
     ViewData["Title"] = "Witaj";
 }
 
 <div class="text-center">
     <h1 class="display-4">Witaj w Systemie kontroli parkingu</h1>
+    @if (!SignInManager.IsSignedIn(User))
+    {
+        <a class="h3 my-3 page-link" id="login" asp-area="Identity" asp-page="/Account/Login">Zaloguj się</a>
+    }
 </div>

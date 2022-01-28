@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using iot_parking.Database;
 using iot_parking.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace iot_parking.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class TerminalsController : Controller
     {
         private readonly DatabaseContext _context;
